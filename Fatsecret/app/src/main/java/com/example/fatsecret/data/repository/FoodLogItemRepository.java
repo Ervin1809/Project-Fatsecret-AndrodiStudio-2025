@@ -1,8 +1,10 @@
 package com.example.fatsecret.data.repository;
 
 import android.content.Context;
+
 import com.example.fatsecret.data.helper.FoodLogItemHelper;
 import com.example.fatsecret.data.model.FoodLogItem;
+
 import java.util.List;
 
 public class FoodLogItemRepository {

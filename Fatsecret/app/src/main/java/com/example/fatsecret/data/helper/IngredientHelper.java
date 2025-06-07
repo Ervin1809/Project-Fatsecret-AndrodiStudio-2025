@@ -29,6 +29,9 @@ public class IngredientHelper {
         values.put(IngredientContract.IngredientEntry.COLUMN_FAT_PER_100G, data.getFatPer100g());
         values.put(IngredientContract.IngredientEntry.COLUMN_CREATED_AT, data.getCreatedAt());
         values.put(IngredientContract.IngredientEntry.COLUMN_UPDATED_AT, data.getUpdatedAt());
+        values.put(IngredientContract.IngredientEntry.COLUMN_API_SOURCE, data.getApiSource());
+        values.put(IngredientContract.IngredientEntry.COLUMN_FDC_ID, data.getFdcId());
+        values.put(IngredientContract.IngredientEntry.COLUMN_LAST_UPDATED, data.getLastUpdated());
         long id = db.insert(IngredientContract.IngredientEntry.TABLE_NAME, null, values);
         db.close();
         return id;
@@ -70,6 +73,9 @@ public class IngredientHelper {
         values.put(IngredientContract.IngredientEntry.COLUMN_FAT_PER_100G, data.getFatPer100g());
         values.put(IngredientContract.IngredientEntry.COLUMN_CREATED_AT, data.getCreatedAt());
         values.put(IngredientContract.IngredientEntry.COLUMN_UPDATED_AT, data.getUpdatedAt());
+        values.put(IngredientContract.IngredientEntry.COLUMN_API_SOURCE, data.getApiSource());
+        values.put(IngredientContract.IngredientEntry.COLUMN_FDC_ID, data.getFdcId());
+        values.put(IngredientContract.IngredientEntry.COLUMN_LAST_UPDATED, data.getLastUpdated());
         int rows = db.update(
                 IngredientContract.IngredientEntry.TABLE_NAME,
                 values,

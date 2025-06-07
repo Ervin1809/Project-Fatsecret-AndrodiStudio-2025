@@ -167,12 +167,15 @@ public class MappingHelper {
         return new Ingredient(
                 cursor.getInt(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_ID)),
                 cursor.getString(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_NAME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_CREATED_AT)),
+                cursor.getString(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_UPDATED_AT)),
                 cursor.getFloat(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_CALORIES_PER_100G)),
                 cursor.getFloat(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_PROTEIN_PER_100G)),
                 cursor.getFloat(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_CARBS_PER_100G)),
                 cursor.getFloat(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_FAT_PER_100G)),
-                cursor.getString(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_CREATED_AT)),
-                cursor.getString(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_UPDATED_AT))
+                cursor.getInt(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_FDC_ID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_API_SOURCE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(IngredientContract.IngredientEntry.COLUMN_LAST_UPDATED))
         );
     }
 

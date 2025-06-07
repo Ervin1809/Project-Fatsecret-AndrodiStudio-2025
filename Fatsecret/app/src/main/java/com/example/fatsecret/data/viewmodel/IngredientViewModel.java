@@ -1,4 +1,4 @@
-package com.example.fatsecret.ui.viewmodel;
+package com.example.fatsecret.data.viewmodel;
 
 import android.app.Application;
 
