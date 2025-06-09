@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
+import com.example.fatsecret.data.MappingHelper;
 import com.example.fatsecret.data.contract.UserContract;
 import com.example.fatsecret.data.contract.UserProfileContract;
 import com.example.fatsecret.data.DatabaseHelper;
@@ -314,6 +315,155 @@ public class AuthRepository {
         });
     }
 
+    /**
+     * ✅ NEW: Create new user profile
+     */
+    // ✅ Pastikan createUserProfile juga save semua field:
+    public void createUserProfile(UserProfile userProfile, ProfileCallback callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = null;
+            try {
+                // ... validation code sama ...
+
+                db = dbHelper.getWritableDatabase();
+                String timestamp = getCurrentTimestamp();
+
+                ContentValues values = new ContentValues();
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_USER_ID, userProfile.getUserId());
+
+                // ✅ Basic health data
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_HEIGHT, userProfile.getHeight());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_WEIGHT, userProfile.getWeight());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_TARGET_WEIGHT, userProfile.getTargetWeight());
+
+                // ✅ Nutrition data (bisa null untuk optional fields)
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_GENDER, userProfile.getGender());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_AGE, userProfile.getAge());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_ACTIVITY_LEVEL, userProfile.getActivityLevel());
+
+                // ✅ Nutrition targets (bisa 0 jika belum di-calculate)
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_DAILY_CALORIES_TARGET, userProfile.getDailyCaloriesTarget());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_DAILY_PROTEIN_TARGET, userProfile.getDailyProteinTarget());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_DAILY_CARBS_TARGET, userProfile.getDailyCarbsTarget());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_DAILY_FAT_TARGET, userProfile.getDailyFatTarget());
+
+                // ✅ Timestamps
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_CREATED_AT, timestamp);
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_UPDATED_AT, timestamp);
+
+                // ... rest of the method sama ...
+            } catch (Exception e) {
+                // ... error handling sama ...
+            }
+        });
+    }
+
+    /**
+     * ✅ NEW: Update existing user profile
+     */
+    public void updateUserProfile(UserProfile userProfile, ProfileCallback callback) {
+        executor.execute(() -> {
+            SQLiteDatabase db = null;
+
+            try {
+                // Validate input
+                if (userProfile == null) {
+                    callback.onError(new Exception("User profile cannot be null"));
+                    return;
+                }
+
+                if (userProfile.getId() <= 0) {
+                    callback.onError(new Exception("Invalid profile ID"));
+                    return;
+                }
+
+                if (userProfile.getHeight() <= 0 || userProfile.getHeight() > 300) {
+                    callback.onError(new Exception("Invalid height. Must be between 1-300 cm"));
+                    return;
+                }
+
+                if (userProfile.getWeight() <= 0 || userProfile.getWeight() > 1000) {
+                    callback.onError(new Exception("Invalid weight. Must be between 1-1000 kg"));
+                    return;
+                }
+
+                if (userProfile.getTargetWeight() <= 0 || userProfile.getTargetWeight() > 1000) {
+                    callback.onError(new Exception("Invalid target weight. Must be between 1-1000 kg"));
+                    return;
+                }
+
+                db = dbHelper.getWritableDatabase();
+
+                String timestamp = getCurrentTimestamp();
+                ContentValues values = new ContentValues();
+
+                // ✅ Basic health data
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_HEIGHT, userProfile.getHeight());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_WEIGHT, userProfile.getWeight());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_TARGET_WEIGHT, userProfile.getTargetWeight());
+
+                // ✅ FIXED: Add nutrition data
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_GENDER, userProfile.getGender());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_AGE, userProfile.getAge());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_ACTIVITY_LEVEL, userProfile.getActivityLevel());
+
+                // ✅ FIXED: Add nutrition targets
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_DAILY_CALORIES_TARGET, userProfile.getDailyCaloriesTarget());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_DAILY_PROTEIN_TARGET, userProfile.getDailyProteinTarget());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_DAILY_CARBS_TARGET, userProfile.getDailyCarbsTarget());
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_DAILY_FAT_TARGET, userProfile.getDailyFatTarget());
+
+                // ✅ Timestamp
+                values.put(UserProfileContract.UserProfileEntry.COLUMN_UPDATED_AT, timestamp);
+
+                // ✅ Debug log untuk verify data
+                Log.d(TAG, "🔧 DEBUG: Updating profile with data:");
+                Log.d(TAG, "Height: " + userProfile.getHeight());
+                Log.d(TAG, "Weight: " + userProfile.getWeight());
+                Log.d(TAG, "Gender: " + userProfile.getGender());
+                Log.d(TAG, "Age: " + userProfile.getAge());
+                Log.d(TAG, "Activity: " + userProfile.getActivityLevel());
+                Log.d(TAG, "Daily Calories: " + userProfile.getDailyCaloriesTarget());
+
+                String whereClause = UserProfileContract.UserProfileEntry.COLUMN_ID + " = ? AND " +
+                        UserProfileContract.UserProfileEntry.COLUMN_USER_ID + " = ?";
+                String[] whereArgs = {String.valueOf(userProfile.getId()), String.valueOf(userProfile.getUserId())};
+
+                int rowsUpdated = db.update(
+                        UserProfileContract.UserProfileEntry.TABLE_NAME,
+                        values,
+                        whereClause,
+                        whereArgs
+                );
+
+                Log.d(TAG, "🔧 DEBUG: Database rows updated: " + rowsUpdated);
+
+                if (rowsUpdated > 0) {
+                    UserProfile updatedProfile = getUserProfile(userProfile.getUserId(), db);
+                    if (updatedProfile != null) {
+                        callback.onSuccess(updatedProfile);
+                        Log.d(TAG, "✅ User profile updated successfully for ID: " + userProfile.getId());
+                    } else {
+                        callback.onError(new Exception("Failed to retrieve updated profile"));
+                    }
+                } else {
+                    callback.onError(new Exception("No profile found to update or no changes made"));
+                }
+
+            } catch (SQLiteException e) {
+                Log.e(TAG, "Database error updating user profile", e);
+                callback.onError(new Exception("Database error: " + e.getMessage()));
+            } catch (Exception e) {
+                Log.e(TAG, "Error updating user profile", e);
+                callback.onError(e);
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
+            }
+        });
+    }
+
     // Get user profile
     public void getUserProfile(int userId, ProfileCallback callback) {
         executor.execute(() -> {
@@ -397,12 +547,22 @@ public class AuthRepository {
     }
 
     private UserProfile getUserProfile(int userId, SQLiteDatabase db) {
+        // ✅ FIXED: Include ALL fields including nutrition data
         String[] projection = {
                 UserProfileContract.UserProfileEntry.COLUMN_ID,
                 UserProfileContract.UserProfileEntry.COLUMN_USER_ID,
                 UserProfileContract.UserProfileEntry.COLUMN_HEIGHT,
                 UserProfileContract.UserProfileEntry.COLUMN_WEIGHT,
                 UserProfileContract.UserProfileEntry.COLUMN_TARGET_WEIGHT,
+                // ✅ ADD: Nutrition fields yang missing
+                UserProfileContract.UserProfileEntry.COLUMN_GENDER,
+                UserProfileContract.UserProfileEntry.COLUMN_AGE,
+                UserProfileContract.UserProfileEntry.COLUMN_ACTIVITY_LEVEL,
+                UserProfileContract.UserProfileEntry.COLUMN_DAILY_CALORIES_TARGET,
+                UserProfileContract.UserProfileEntry.COLUMN_DAILY_PROTEIN_TARGET,
+                UserProfileContract.UserProfileEntry.COLUMN_DAILY_CARBS_TARGET,
+                UserProfileContract.UserProfileEntry.COLUMN_DAILY_FAT_TARGET,
+                // ✅ Timestamps
                 UserProfileContract.UserProfileEntry.COLUMN_CREATED_AT,
                 UserProfileContract.UserProfileEntry.COLUMN_UPDATED_AT
         };
@@ -422,6 +582,14 @@ public class AuthRepository {
 
         UserProfile profile = null;
         if (cursor != null && cursor.moveToFirst()) {
+            // ✅ Debug log untuk verify data dari database
+            Log.d(TAG, "🔧 DEBUG: Raw data from database:");
+            for (int i = 0; i < cursor.getColumnCount(); i++) {
+                String columnName = cursor.getColumnName(i);
+                String value = cursor.getString(i);
+                Log.d(TAG, "🔧 DEBUG: " + columnName + " = " + value);
+            }
+
             profile = cursorToUserProfile(cursor);
             cursor.close();
         } else if (cursor != null) {
@@ -464,21 +632,7 @@ public class AuthRepository {
     }
 
     private UserProfile cursorToUserProfile(Cursor cursor) {
-        UserProfile profile = new UserProfile();
-
-        try {
-            profile.setId(cursor.getInt(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_ID)));
-            profile.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_USER_ID)));
-            profile.setHeight(cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_HEIGHT)));
-            profile.setWeight(cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_WEIGHT)));
-            profile.setTargetWeight(cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_TARGET_WEIGHT)));
-            profile.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_CREATED_AT)));
-            profile.setUpdatedAt(cursor.getString(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_UPDATED_AT)));
-        } catch (Exception e) {
-            Log.e(TAG, "Error converting cursor to UserProfile", e);
-        }
-
-        return profile;
+        return MappingHelper.mapCursorToUserProfile(cursor);
     }
 
     private void saveUserSession(User user) {

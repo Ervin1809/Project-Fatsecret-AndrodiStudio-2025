@@ -27,25 +27,25 @@ public class MenuViewModel extends AndroidViewModel {
     }
 
     public void loadAllMenus() {
-        menus.setValue(repository.getAll());
+        menus.setValue(repository.getAllMenus());
     }
 
     public Menu getById(int id) {
-        return repository.getById(id);
+        return repository.getMenuById(id);
     }
 
     public void insert(Menu data) {
-        repository.insert(data);
+        repository.createMenu(data);
         loadAllMenus();
     }
 
     public void update(Menu data) {
-        repository.update(data);
+        repository.updateMenu(data);
         loadAllMenus();
     }
 
     public void delete(int id) {
-        repository.delete(id);
+        repository.deleteMenu(id);
         loadAllMenus();
     }
 }

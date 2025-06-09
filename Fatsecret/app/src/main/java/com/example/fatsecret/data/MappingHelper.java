@@ -1,6 +1,9 @@
 package com.example.fatsecret.data;
 
+import static android.content.ContentValues.TAG;
+
 import android.database.Cursor;
+import android.util.Log;
 
 import com.example.fatsecret.data.contract.UserContract;
 import com.example.fatsecret.data.contract.UserProfileContract;
@@ -52,15 +55,40 @@ public class MappingHelper {
     // USER PROFILE
     public static UserProfile mapCursorToUserProfile(Cursor cursor) {
         if (cursor == null) return null;
-        return new UserProfile(
-                cursor.getInt(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_ID)),
-                cursor.getInt(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_USER_ID)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_HEIGHT)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_WEIGHT)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_TARGET_WEIGHT)),
-                cursor.getString(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_CREATED_AT)),
-                cursor.getString(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_UPDATED_AT))
-        );
+
+        try {
+            UserProfile profile = new UserProfile();
+
+            // ✅ Basic fields (yang sudah ada)
+            profile.setId(cursor.getInt(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_ID)));
+            profile.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_USER_ID)));
+            profile.setHeight(cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_HEIGHT)));
+            profile.setWeight(cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_WEIGHT)));
+            profile.setTargetWeight(cursor.getFloat(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_TARGET_WEIGHT)));
+            profile.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_CREATED_AT)));
+            profile.setUpdatedAt(cursor.getString(cursor.getColumnIndexOrThrow(UserProfileContract.UserProfileEntry.COLUMN_UPDATED_AT)));
+
+            // ✅ ADD: Nutrition fields yang missing
+            profile.setGender(getStringSafely(cursor, UserProfileContract.UserProfileEntry.COLUMN_GENDER));
+            profile.setAge(getIntSafely(cursor, UserProfileContract.UserProfileEntry.COLUMN_AGE));
+            profile.setActivityLevel(getStringSafely(cursor, UserProfileContract.UserProfileEntry.COLUMN_ACTIVITY_LEVEL));
+            profile.setDailyCaloriesTarget(getFloatSafely(cursor, UserProfileContract.UserProfileEntry.COLUMN_DAILY_CALORIES_TARGET));
+            profile.setDailyProteinTarget(getFloatSafely(cursor, UserProfileContract.UserProfileEntry.COLUMN_DAILY_PROTEIN_TARGET));
+            profile.setDailyCarbsTarget(getFloatSafely(cursor, UserProfileContract.UserProfileEntry.COLUMN_DAILY_CARBS_TARGET));
+            profile.setDailyFatTarget(getFloatSafely(cursor, UserProfileContract.UserProfileEntry.COLUMN_DAILY_FAT_TARGET));
+
+            // ✅ Debug log untuk verify
+            Log.d(TAG, "🔧 DEBUG: Mapped UserProfile:");
+            Log.d(TAG, "Gender: " + profile.getGender() + ", Age: " + profile.getAge());
+            Log.d(TAG, "Activity: " + profile.getActivityLevel());
+            Log.d(TAG, "Calories: " + profile.getDailyCaloriesTarget());
+
+            return profile;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error mapping cursor to UserProfile: " + e.getMessage(), e);
+            return null;
+        }
     }
 
     public static List<UserProfile> mapCursorToUserProfileList(Cursor cursor) {
@@ -210,5 +238,42 @@ public class MappingHelper {
             cursor.close();
         }
         return list;
+    }
+
+    // ✅ Helper methods untuk akses kolom yang aman
+    private static float getFloatSafely(Cursor cursor, String columnName) {
+        try {
+            int columnIndex = cursor.getColumnIndex(columnName);
+            if (columnIndex != -1 && !cursor.isNull(columnIndex)) {
+                return cursor.getFloat(columnIndex);
+            }
+            return 0.0f; // Default kalau kolom belum ada
+        } catch (Exception e) {
+            return 0.0f;
+        }
+    }
+
+    private static String getStringSafely(Cursor cursor, String columnName) {
+        try {
+            int columnIndex = cursor.getColumnIndex(columnName);
+            if (columnIndex != -1 && !cursor.isNull(columnIndex)) {
+                return cursor.getString(columnIndex);
+            }
+            return null; // Default kalau kolom belum ada
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static int getIntSafely(Cursor cursor, String columnName) {
+        try {
+            int columnIndex = cursor.getColumnIndex(columnName);
+            if (columnIndex != -1 && !cursor.isNull(columnIndex)) {
+                return cursor.getInt(columnIndex);
+            }
+            return 0; // Default kalau kolom belum ada
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

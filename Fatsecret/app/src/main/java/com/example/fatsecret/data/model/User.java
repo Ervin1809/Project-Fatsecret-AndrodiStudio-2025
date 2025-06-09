@@ -3,10 +3,7 @@ package com.example.fatsecret.data.model;
 public class User {
     int id;
     String name, email, password, profilePicture, createdAt, updatedAt;
-    String role = "user"; // Default role is "user"
-    // enum: "admin" atau "user"
-    // path atau URI gambar profil
-    // timestamp format string
+    String role = "user";
 
     public User(int id, String name, String email, String password, String role, String profilePicture, String createdAt, String updatedAt) {
         this.id = id;

@@ -113,34 +113,81 @@ public class AuthViewModel extends AndroidViewModel {
         return authRepository.isLoggedIn();
     }
 
-    // ==================== USER PROFILE METHODS ====================
+    // ==================== USER PROFILE METHODS (MODERN) ====================
 
-    public void saveUserProfile(float height, float weight, float targetWeight) {
+    /**
+     * Create new user profile with full nutrition data support
+     */
+    public void createUserProfile(UserProfile newProfile) {
+        if (newProfile == null) {
+            errorMessage.setValue("Invalid profile data");
+            return;
+        }
+
         User user = currentUser.getValue();
         if (user == null) {
             errorMessage.setValue("No user logged in");
             return;
         }
 
+        Log.d(TAG, "🏥 Creating user profile for user ID: " + newProfile.getUserId());
         isLoading.setValue(true);
 
-        authRepository.saveUserProfile(user.getId(), height, weight, targetWeight, new AuthRepository.ProfileCallback() {
+        authRepository.createUserProfile(newProfile, new AuthRepository.ProfileCallback() {
             @Override
             public void onSuccess(UserProfile profile) {
                 isLoading.postValue(false);
                 userProfile.postValue(profile);
-                Log.d(TAG, "User profile saved successfully");
+                Log.d(TAG, "✅ User profile created successfully with ID: " + profile.getId());
             }
 
             @Override
             public void onError(Exception error) {
                 isLoading.postValue(false);
                 errorMessage.postValue(error.getMessage());
-                Log.e(TAG, "Failed to save user profile: " + error.getMessage());
+                Log.e(TAG, "❌ Failed to create user profile: " + error.getMessage());
             }
         });
     }
 
+    /**
+     * Update existing user profile with full nutrition data support
+     */
+    public void updateUserProfile(UserProfile updatedProfile) {
+        if (updatedProfile == null) {
+            errorMessage.setValue("Invalid profile data");
+            return;
+        }
+
+        User user = currentUser.getValue();
+        if (user == null) {
+            errorMessage.setValue("No user logged in");
+            return;
+        }
+
+        Log.d(TAG, "🏥 Updating user profile ID: " + updatedProfile.getId());
+        isLoading.setValue(true);
+
+        authRepository.updateUserProfile(updatedProfile, new AuthRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(UserProfile profile) {
+                isLoading.postValue(false);
+                userProfile.postValue(profile);
+                Log.d(TAG, "✅ User profile updated successfully");
+            }
+
+            @Override
+            public void onError(Exception error) {
+                isLoading.postValue(false);
+                errorMessage.postValue(error.getMessage());
+                Log.e(TAG, "❌ Failed to update user profile: " + error.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Load user profile by user ID
+     */
     public void loadUserProfile(int userId) {
         authRepository.getUserProfile(userId, new AuthRepository.ProfileCallback() {
             @Override
@@ -151,6 +198,7 @@ public class AuthViewModel extends AndroidViewModel {
 
             @Override
             public void onError(Exception error) {
+                userProfile.postValue(null);
                 Log.d(TAG, "No user profile found (this is normal for new users)");
                 // Don't post error for missing profile - it's normal for new users
             }

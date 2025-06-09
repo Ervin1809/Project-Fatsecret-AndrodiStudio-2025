@@ -2,6 +2,7 @@ package com.example.fatsecret.ui.fragments;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -18,7 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fatsecret.R;
 import com.example.fatsecret.data.viewmodel.IngredientViewModel;
+import com.example.fatsecret.ui.adapters.IngredientAdapter;
 import com.google.android.material.button.MaterialButton;
+
+import java.util.ArrayList;
 
 public class SearchFragment extends Fragment {
     private EditText etSearch;
@@ -29,6 +34,7 @@ public class SearchFragment extends Fragment {
     private TextView tvErrorMessage;
 
     private IngredientViewModel ingredientViewModel;
+    private IngredientAdapter searchAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,6 +44,7 @@ public class SearchFragment extends Fragment {
         setupViewModel();
         setupClickListeners();
         setupRecyclerView();
+//        testClearDatabase(); // aktifkan jika ingin menguji pembersihan database
 
         return view;
     }
@@ -57,30 +64,31 @@ public class SearchFragment extends Fragment {
         ingredientViewModel = new ViewModelProvider(this).get(IngredientViewModel.class);
 
         // Observe search results
-        ingredientViewModel.getIngredients().observe(getViewLifecycleOwner(), ingredients -> {
+        ingredientViewModel.getSearchResults().observe(getViewLifecycleOwner(), ingredients -> {
             if (ingredients != null && !ingredients.isEmpty()) {
                 showSearchResults();
-                // TODO: Update RecyclerView adapter with results
+                // Update RecyclerView adapter with results
+                searchAdapter.setIngredients(ingredients);
             } else {
                 showEmptyState();
             }
         });
 
-//        // Observe loading state
-//        ingredientViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-//            if (isLoading) {
-//                showLoading();
-//            } else {
-//                hideLoading();
-//            }
-//        });
-//
-//        // Observe error messages
-//        ingredientViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-//            if (error != null && !error.isEmpty()) {
-//                showError(error);
-//            }
-//        });
+        // Observe loading state
+        ingredientViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading) {
+                showLoading();
+            } else {
+                hideLoading();
+            }
+        });
+
+        // Observe error messages
+        ingredientViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+            if (error != null && !error.isEmpty()) {
+                showError(error);
+            }
+        });
     }
 
     private void setupClickListeners() {
@@ -102,7 +110,8 @@ public class SearchFragment extends Fragment {
 
     private void setupRecyclerView() {
         rvSearchResults.setLayoutManager(new LinearLayoutManager(getContext()));
-        // TODO: Set adapter when we create FoodAdapter
+        searchAdapter = new IngredientAdapter();
+        rvSearchResults.setAdapter(searchAdapter);
     }
 
     private void performSearch() {
@@ -127,7 +136,7 @@ public class SearchFragment extends Fragment {
         hideKeyboard();
 
         // Perform search
-//        ingredientViewModel.searchIngredients(query);
+        ingredientViewModel.searchIngredients(query);
     }
 
     private void showLoading() {
@@ -172,5 +181,17 @@ public class SearchFragment extends Fragment {
                 imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
             }
         }
+    }
+    private void testClearDatabase() {
+//        IngredientViewModel viewModel = new ViewModelProvider(this).get(IngredientViewModel.class);
+        Log.d("SearchFragment", "🧪 Testing database clear...");
+
+        // Option 1: Clear all
+        ingredientViewModel.clearDatabase();
+
+        // Option 2: Clear only zero protein data
+        // viewModel.clearCorruptData();
+
+        Toast.makeText(getContext(), "Database clearing... check logcat", Toast.LENGTH_SHORT).show();
     }
 }
