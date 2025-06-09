@@ -7,19 +7,16 @@ public final class FoodLogItemContract {
 
     public static class FoodLogItemEntry implements BaseColumns {
         public static final String TABLE_NAME = "food_log_items";
-        public static final String COLUMN_ID = "id"; // Added
-        public static final String COLUMN_FOOD_LOG_ID = "food_log_id";
-        public static final String COLUMN_INGREDIENT_ID = "ingredient_id";
-        public static final String COLUMN_MENU_ID = "menu_id";
-        public static final String COLUMN_TYPE = "type"; // Added
-        public static final String COLUMN_QUANTITY = "quantity";
-        public static final String COLUMN_QUANTITY_IN_GRAMS = "quantity_in_grams"; // Added
-        public static final String COLUMN_UNIT = "unit";
-        public static final String COLUMN_CALORIES = "calories";
-        public static final String COLUMN_PROTEIN = "protein";
-        public static final String COLUMN_CARBS = "carbs";
-        public static final String COLUMN_FAT = "fat";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_FOOD_LOG_ID = "food_log_id"; // FK ke food_logs
+        public static final String COLUMN_INGREDIENT_ID = "ingredient_id"; // FK ke ingredients
+        public static final String COLUMN_WEIGHT_GRAMS = "weight_grams"; // berat yang dimakan
+        public static final String COLUMN_CALCULATED_CALORIES = "calculated_calories"; // kalori sesuai weight
+        public static final String COLUMN_CALCULATED_PROTEIN = "calculated_protein"; // protein sesuai weight
+        public static final String COLUMN_CALCULATED_CARBS = "calculated_carbs"; // carbs sesuai weight
+        public static final String COLUMN_CALCULATED_FAT = "calculated_fat"; // fat sesuai weight
         public static final String COLUMN_CREATED_AT = "created_at";
+        public static final String COLUMN_UPDATED_AT = "updated_at";
     }
 
     // SQL CREATE TABLE
@@ -27,24 +24,18 @@ public final class FoodLogItemContract {
             "CREATE TABLE " + FoodLogItemEntry.TABLE_NAME + " (" +
                     FoodLogItemEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     FoodLogItemEntry.COLUMN_FOOD_LOG_ID + " INTEGER NOT NULL," +
-                    FoodLogItemEntry.COLUMN_INGREDIENT_ID + " INTEGER," +
-                    FoodLogItemEntry.COLUMN_MENU_ID + " INTEGER," +
-                    FoodLogItemEntry.COLUMN_TYPE + " TEXT," +
-                    FoodLogItemEntry.COLUMN_QUANTITY + " REAL NOT NULL," +
-                    FoodLogItemEntry.COLUMN_QUANTITY_IN_GRAMS + " REAL," +
-                    FoodLogItemEntry.COLUMN_UNIT + " TEXT NOT NULL," +
-                    FoodLogItemEntry.COLUMN_CALORIES + " REAL NOT NULL," +
-                    FoodLogItemEntry.COLUMN_PROTEIN + " REAL NOT NULL," +
-                    FoodLogItemEntry.COLUMN_CARBS + " REAL NOT NULL," +
-                    FoodLogItemEntry.COLUMN_FAT + " REAL NOT NULL," +
+                    FoodLogItemEntry.COLUMN_INGREDIENT_ID + " INTEGER NOT NULL," +
+                    FoodLogItemEntry.COLUMN_WEIGHT_GRAMS + " REAL NOT NULL," +
+                    FoodLogItemEntry.COLUMN_CALCULATED_CALORIES + " REAL DEFAULT 0," +
+                    FoodLogItemEntry.COLUMN_CALCULATED_PROTEIN + " REAL DEFAULT 0," +
+                    FoodLogItemEntry.COLUMN_CALCULATED_CARBS + " REAL DEFAULT 0," +
+                    FoodLogItemEntry.COLUMN_CALCULATED_FAT + " REAL DEFAULT 0," +
                     FoodLogItemEntry.COLUMN_CREATED_AT + " TEXT NOT NULL," +
+                    FoodLogItemEntry.COLUMN_UPDATED_AT + " TEXT NOT NULL," +
                     "FOREIGN KEY(" + FoodLogItemEntry.COLUMN_FOOD_LOG_ID + ") REFERENCES " +
                     FoodLogContract.FoodLogEntry.TABLE_NAME + "(" + FoodLogContract.FoodLogEntry.COLUMN_ID + ") ON DELETE CASCADE," +
                     "FOREIGN KEY(" + FoodLogItemEntry.COLUMN_INGREDIENT_ID + ") REFERENCES " +
-                    IngredientContract.IngredientEntry.TABLE_NAME + "(" + IngredientContract.IngredientEntry.COLUMN_ID + ") ON DELETE CASCADE," +
-                    "FOREIGN KEY(" + FoodLogItemEntry.COLUMN_MENU_ID + ") REFERENCES " +
-                    MenuContract.MenuEntry.TABLE_NAME + "(" + MenuContract.MenuEntry.COLUMN_ID + ") ON DELETE CASCADE)";
-
+                    IngredientContract.IngredientEntry.TABLE_NAME + "(" + IngredientContract.IngredientEntry.COLUMN_ID + ") ON DELETE CASCADE)";
     // SQL DROP TABLE
     public static final String SQL_DROP_TABLE =
             "DROP TABLE IF EXISTS " + FoodLogItemEntry.TABLE_NAME;

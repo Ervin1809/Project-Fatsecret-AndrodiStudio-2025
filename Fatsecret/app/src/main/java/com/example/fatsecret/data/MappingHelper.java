@@ -105,59 +105,137 @@ public class MappingHelper {
     // FOOD LOG
     public static FoodLog mapCursorToFoodLog(Cursor cursor) {
         if (cursor == null) return null;
-        return new FoodLog(
-                cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_ID)),
-                cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_USER_PROFILE_ID)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_MEAL_TIME)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_NOTE)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_CREATED_AT)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_UPDATED_AT))
-        );
+
+        try {
+            FoodLog foodLog = new FoodLog();
+
+            // ✅ Basic fields
+            foodLog.setId(cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_ID)));
+            foodLog.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_USER_ID)));
+            foodLog.setUserProfileId(cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_USER_PROFILE_ID)));
+            foodLog.setDate(cursor.getString(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_DATE)));
+            foodLog.setMealTime(cursor.getString(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_MEAL_TIME)));
+
+            // ✅ Optional note field
+            int noteIndex = cursor.getColumnIndex(FoodLogContract.FoodLogEntry.COLUMN_NOTE);
+            if (noteIndex != -1 && !cursor.isNull(noteIndex)) {
+                foodLog.setNote(cursor.getString(noteIndex));
+            }
+
+            // ✅ Total nutrition fields
+            foodLog.setTotalCalories(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_TOTAL_CALORIES)));
+            foodLog.setTotalProtein(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_TOTAL_PROTEIN)));
+            foodLog.setTotalCarbs(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_TOTAL_CARBS)));
+            foodLog.setTotalFat(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_TOTAL_FAT)));
+
+            // ✅ Timestamps
+            foodLog.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_CREATED_AT)));
+            foodLog.setUpdatedAt(cursor.getString(cursor.getColumnIndexOrThrow(FoodLogContract.FoodLogEntry.COLUMN_UPDATED_AT)));
+
+            return foodLog;
+
+        } catch (Exception e) {
+            Log.e("MappingHelper", "Error mapping cursor to FoodLog: " + e.getMessage(), e);
+            return null;
+        }
     }
 
+    // ✅ List mapping method
     public static List<FoodLog> mapCursorToFoodLogList(Cursor cursor) {
         List<FoodLog> list = new ArrayList<>();
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                list.add(mapCursorToFoodLog(cursor));
-            } while (cursor.moveToNext());
-            cursor.close();
+
+        if (cursor == null) {
+            return list;
         }
+
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    FoodLog foodLog = mapCursorToFoodLog(cursor);
+                    if (foodLog != null) {
+                        list.add(foodLog);
+                    }
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("MappingHelper", "Error mapping cursor to FoodLog list: " + e.getMessage(), e);
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
         return list;
     }
 
-    // FOOD LOG ITEM
+    // ✅ FIXED: Update mapCursorToFoodLogItem sesuai contract baru
     public static FoodLogItem mapCursorToFoodLogItem(Cursor cursor) {
         if (cursor == null) return null;
-        // menu_id dan ingredient_id bisa null
-        int menuIdIndex = cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_MENU_ID);
-        int ingredientIdIndex = cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_INGREDIENT_ID);
 
-        Integer menuId = cursor.isNull(menuIdIndex) ? null : cursor.getInt(menuIdIndex);
-        Integer ingredientId = cursor.isNull(ingredientIdIndex) ? null : cursor.getInt(ingredientIdIndex);
+        try {
+            // ✅ Update column names sesuai contract baru
+            FoodLogItem item = new FoodLogItem();
 
-        return new FoodLogItem(
-                cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_ID)),
-                cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_FOOD_LOG_ID)),
-                cursor.getString(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_TYPE)),
-                menuId,
-                ingredientId,
-                cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_QUANTITY_IN_GRAMS)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_CALORIES)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_PROTEIN)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_CARBS)),
-                cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_FAT))
-        );
+            item.setId(cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_ID)));
+            item.setFoodLogId(cursor.getInt(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_FOOD_LOG_ID)));
+
+            // ✅ Handle ingredient_id (bisa null)
+            int ingredientIdIndex = cursor.getColumnIndex(FoodLogItemContract.FoodLogItemEntry.COLUMN_INGREDIENT_ID);
+            if (ingredientIdIndex != -1 && !cursor.isNull(ingredientIdIndex)) {
+                item.setIngredientId(cursor.getInt(ingredientIdIndex));
+            }
+
+            // ✅ Set weight dan calculated nutrition
+            item.setWeightGrams(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_WEIGHT_GRAMS)));
+            item.setCalculatedCalories(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_CALCULATED_CALORIES)));
+            item.setCalculatedProtein(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_CALCULATED_PROTEIN)));
+            item.setCalculatedCarbs(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_CALCULATED_CARBS)));
+            item.setCalculatedFat(cursor.getFloat(cursor.getColumnIndexOrThrow(FoodLogItemContract.FoodLogItemEntry.COLUMN_CALCULATED_FAT)));
+
+            // ✅ Set timestamps
+            int createdAtIndex = cursor.getColumnIndex(FoodLogItemContract.FoodLogItemEntry.COLUMN_CREATED_AT);
+            if (createdAtIndex != -1 && !cursor.isNull(createdAtIndex)) {
+                item.setCreatedAt(cursor.getString(createdAtIndex));
+            }
+
+            int updatedAtIndex = cursor.getColumnIndex(FoodLogItemContract.FoodLogItemEntry.COLUMN_UPDATED_AT);
+            if (updatedAtIndex != -1 && !cursor.isNull(updatedAtIndex)) {
+                item.setUpdatedAt(cursor.getString(updatedAtIndex));
+            }
+
+            return item;
+
+        } catch (Exception e) {
+            Log.e("MappingHelper", "Error mapping cursor to FoodLogItem: " + e.getMessage(), e);
+            return null;
+        }
     }
 
+    // ✅ List mapping method
     public static List<FoodLogItem> mapCursorToFoodLogItemList(Cursor cursor) {
         List<FoodLogItem> list = new ArrayList<>();
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                list.add(mapCursorToFoodLogItem(cursor));
-            } while (cursor.moveToNext());
-            cursor.close();
+
+        if (cursor == null) {
+            return list;
         }
+
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    FoodLogItem item = mapCursorToFoodLogItem(cursor);
+                    if (item != null) {
+                        list.add(item);
+                    }
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("MappingHelper", "Error mapping cursor to FoodLogItem list: " + e.getMessage(), e);
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
         return list;
     }
 

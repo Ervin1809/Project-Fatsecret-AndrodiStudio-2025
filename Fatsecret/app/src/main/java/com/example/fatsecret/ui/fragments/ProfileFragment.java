@@ -1,5 +1,6 @@
 package com.example.fatsecret.ui.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -23,10 +24,12 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.fatsecret.MainActivity;
 import com.example.fatsecret.R;
 import com.example.fatsecret.data.model.User;
 import com.example.fatsecret.data.model.UserProfile;
 import com.example.fatsecret.data.viewmodel.AuthViewModel;
+import com.example.fatsecret.ui.LoginActivity;
 import com.example.fatsecret.utils.NutritionCalculator;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -111,8 +114,21 @@ public class ProfileFragment extends Fragment {
         });
 
         btnLogout.setOnClickListener(v -> {
+            // ✅ Call logout method
             authViewModel.logout();
-            // Navigate to login (implement as needed)
+
+            // ✅ Navigate to LoginActivity
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+
+            // ✅ Clear activity stack to prevent back navigation
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            startActivity(intent);
+
+            // ✅ Finish current activity
+            if (getActivity() != null) {
+                getActivity().finish();
+            }
         });
     }
 
@@ -394,10 +410,12 @@ public class ProfileFragment extends Fragment {
         // Real-time calculation listener
         TextWatcher calculationWatcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -417,8 +435,10 @@ public class ProfileFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 calculateAndDisplayTargets.run();
             }
+
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
         // Button listeners

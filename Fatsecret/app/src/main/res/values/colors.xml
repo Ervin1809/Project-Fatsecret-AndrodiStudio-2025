@@ -40,4 +40,10 @@
     <!-- Bottom Navigation Colors -->
     <color name="bottom_nav_selected">#4CAF50</color>
     <color name="bottom_nav_unselected">#757575</color>
+
+    <!-- Add these colors to your colors.xml -->
+    <color name="colorCalories">#FF6B35</color>
+    <color name="colorProtein">#4ECDC4</color>
+    <color name="colorCarbs">#45B7D1</color>
+    <color name="colorFat">#96CEB4</color>
 </resources>

@@ -1,105 +1,67 @@
 package com.example.fatsecret.data.model;
 
 public class FoodLogItem {
-    int id, foodLogId; // foreign key ke food_logs.id
-    String type;              // enum: "menu" atau "ingredient"
-    Integer menuId, ingredientId;   // nullable, jika type == "menu" // nullable, jika type == "ingredient"
-    float quantityInGrams, calories, protein, carbs, fat; // jumlah dalam gram
+    private int id;
+    private int foodLogId;
+    private Integer ingredientId; // Nullable
+    private float weightGrams;
+    private float calculatedCalories;
+    private float calculatedProtein;
+    private float calculatedCarbs;
+    private float calculatedFat;
+    private String createdAt;
+    private String updatedAt;
 
-    public FoodLogItem(int id, int foodLogId, String type, Integer menuId, Integer ingredientId, float quantityInGrams, float calories, float protein, float carbs, float fat) {
-        this.id = id;
+    // ✅ Constructors
+    public FoodLogItem() {}
+
+    public FoodLogItem(int foodLogId, int ingredientId, float weightGrams) {
         this.foodLogId = foodLogId;
-        this.type = type;
-        this.menuId = menuId;
         this.ingredientId = ingredientId;
-        this.quantityInGrams = quantityInGrams;
-        this.calories = calories;
-        this.protein = protein;
-        this.carbs = carbs;
-        this.fat = fat;
+        this.weightGrams = weightGrams;
     }
 
-    public FoodLogItem() {
-    }
+    // ✅ Getters and Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public Integer getMenuId() {
-        return menuId;
-    }
+    public int getFoodLogId() { return foodLogId; }
+    public void setFoodLogId(int foodLogId) { this.foodLogId = foodLogId; }
 
-    public void setMenuId(Integer menuId) {
-        this.menuId = menuId;
-    }
+    public Integer getIngredientId() { return ingredientId; }
+    public void setIngredientId(Integer ingredientId) { this.ingredientId = ingredientId; }
 
-    public int getId() {
-        return id;
-    }
+    public float getWeightGrams() { return weightGrams; }
+    public void setWeightGrams(float weightGrams) { this.weightGrams = weightGrams; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public float getCalculatedCalories() { return calculatedCalories; }
+    public void setCalculatedCalories(float calculatedCalories) { this.calculatedCalories = calculatedCalories; }
 
-    public int getFoodLogId() {
-        return foodLogId;
-    }
+    public float getCalculatedProtein() { return calculatedProtein; }
+    public void setCalculatedProtein(float calculatedProtein) { this.calculatedProtein = calculatedProtein; }
 
-    public void setFoodLogId(int foodLogId) {
-        this.foodLogId = foodLogId;
-    }
+    public float getCalculatedCarbs() { return calculatedCarbs; }
+    public void setCalculatedCarbs(float calculatedCarbs) { this.calculatedCarbs = calculatedCarbs; }
 
-    public String getType() {
-        return type;
-    }
+    public float getCalculatedFat() { return calculatedFat; }
+    public void setCalculatedFat(float calculatedFat) { this.calculatedFat = calculatedFat; }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
-    public Integer getIngredientId() {
-        return ingredientId;
-    }
+    public String getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
-    public void setIngredientId(Integer ingredientId) {
-        this.ingredientId = ingredientId;
-    }
+    // ✅ Helper method untuk calculate nutrition dari ingredient
+    public void calculateNutritionFromIngredient(Ingredient ingredient, float weightGrams) {
+        if (ingredient == null) return;
 
-    public float getQuantityInGrams() {
-        return quantityInGrams;
-    }
+        float ratio = weightGrams / 100.0f; // Convert to per 100g ratio
 
-    public void setQuantityInGrams(float quantityInGrams) {
-        this.quantityInGrams = quantityInGrams;
+        this.weightGrams = weightGrams;
+        this.calculatedCalories = ingredient.getCaloriesPer100g() * ratio;
+        this.calculatedProtein = ingredient.getProteinPer100g() * ratio;
+        this.calculatedCarbs = ingredient.getCarbsPer100g() * ratio;
+        this.calculatedFat = ingredient.getFatPer100g() * ratio;
     }
-
-    public float getCalories() {
-        return calories;
-    }
-
-    public void setCalories(float calories) {
-        this.calories = calories;
-    }
-
-    public float getProtein() {
-        return protein;
-    }
-
-    public void setProtein(float protein) {
-        this.protein = protein;
-    }
-
-    public float getCarbs() {
-        return carbs;
-    }
-
-    public void setCarbs(float carbs) {
-        this.carbs = carbs;
-    }
-
-    public float getFat() {
-        return fat;
-    }
-
-    public void setFat(float fat) {
-        this.fat = fat;
-    }
-
 }

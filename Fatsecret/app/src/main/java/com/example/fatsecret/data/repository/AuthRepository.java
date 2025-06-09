@@ -323,7 +323,16 @@ public class AuthRepository {
         executor.execute(() -> {
             SQLiteDatabase db = null;
             try {
-                // ... validation code sama ...
+                // ✅ Validation code
+                if (userProfile == null) {
+                    callback.onError(new IllegalArgumentException("UserProfile cannot be null"));
+                    return;
+                }
+
+                if (userProfile.getUserId() <= 0) {
+                    callback.onError(new IllegalArgumentException("Invalid user ID"));
+                    return;
+                }
 
                 db = dbHelper.getWritableDatabase();
                 String timestamp = getCurrentTimestamp();
@@ -351,9 +360,32 @@ public class AuthRepository {
                 values.put(UserProfileContract.UserProfileEntry.COLUMN_CREATED_AT, timestamp);
                 values.put(UserProfileContract.UserProfileEntry.COLUMN_UPDATED_AT, timestamp);
 
-                // ... rest of the method sama ...
+                // ✅ Rest of the method - INSERT
+                Log.d(TAG, "🔧 DEBUG: Inserting profile into database...");
+
+                long profileId = db.insert(UserProfileContract.UserProfileEntry.TABLE_NAME, null, values);
+
+                Log.d(TAG, "🔧 DEBUG: Insert result - Profile ID: " + profileId);
+
+                if (profileId > 0) {
+                    // Set the generated ID
+                    userProfile.setId((int) profileId);
+
+                    Log.d(TAG, "✅ DEBUG: Profile created successfully with ID: " + profileId);
+                    callback.onSuccess(userProfile);
+                } else {
+                    Log.e(TAG, "❌ DEBUG: Failed to insert profile - returned ID: " + profileId);
+                    callback.onError(new Exception("Failed to create user profile"));
+                }
+
             } catch (Exception e) {
-                // ... error handling sama ...
+                // ✅ Error handling
+                Log.e(TAG, "❌ DEBUG: Exception in createUserProfile: " + e.getMessage(), e);
+                callback.onError(e);
+            } finally {
+                if (db != null) {
+                    db.close();
+                }
             }
         });
     }
