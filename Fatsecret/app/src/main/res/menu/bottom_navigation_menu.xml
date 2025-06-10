@@ -10,6 +10,12 @@
         android:icon="@drawable/ic_search"
         android:title="Search" />
 
+    <!-- ✅ CHANGE: Use historyFragment ID instead of nav_history -->
+    <item
+        android:id="@+id/historyFragment"
+        android:icon="@drawable/ic_history"
+        android:title="History" />
+
     <item
         android:id="@+id/profileFragment"
         android:icon="@drawable/ic_profile"

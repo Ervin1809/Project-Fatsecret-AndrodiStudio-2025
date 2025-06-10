@@ -19,6 +19,11 @@
         <action
             android:id="@+id/action_home_to_profile"
             app:destination="@id/profileFragment" />
+
+        <!-- ✅ ADD: Action to History -->
+        <action
+            android:id="@+id/action_home_to_history"
+            app:destination="@id/historyFragment" />
     </fragment>
 
     <fragment
@@ -34,6 +39,32 @@
 
         <action
             android:id="@+id/action_search_to_profile"
+            app:destination="@id/profileFragment" />
+
+        <!-- ✅ ADD: Action to History -->
+        <action
+            android:id="@+id/action_search_to_history"
+            app:destination="@id/historyFragment" />
+    </fragment>
+
+    <!-- ✅ ADD: HistoryFragment destination -->
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.example.fatsecret.ui.fragments.HistoryFragment"
+        android:label="History"
+        tools:layout="@layout/fragment_history">
+
+        <!-- ✅ Actions FROM History TO other fragments -->
+        <action
+            android:id="@+id/action_history_to_home"
+            app:destination="@id/homeFragment" />
+
+        <action
+            android:id="@+id/action_history_to_search"
+            app:destination="@id/searchFragment" />
+
+        <action
+            android:id="@+id/action_history_to_profile"
             app:destination="@id/profileFragment" />
     </fragment>
 
@@ -51,6 +82,11 @@
         <action
             android:id="@+id/action_profile_to_search"
             app:destination="@id/searchFragment" />
+
+        <!-- ✅ ADD: Action to History -->
+        <action
+            android:id="@+id/action_profile_to_history"
+            app:destination="@id/historyFragment" />
     </fragment>
 
 </navigation>

@@ -31,4 +31,13 @@ public class FoodLogRepository {
     public int delete(int id) {
         return helper.delete(id);
     }
+
+    // ✅ NEW: Methods for History functionality
+    public List<FoodLog> getFoodLogsByDateSync(String date, int userId) {
+        return helper.getFoodLogsByDateSync(date, userId);
+    }
+
+    public List<FoodLog> getFoodLogsForMonthSync(int year, int month, int userId) {
+        return helper.getFoodLogsForMonthSync(year, month, userId);
+    }
 }

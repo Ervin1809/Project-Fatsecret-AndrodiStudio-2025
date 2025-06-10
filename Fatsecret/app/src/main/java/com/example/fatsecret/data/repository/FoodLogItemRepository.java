@@ -33,4 +33,9 @@ public class FoodLogItemRepository {
     public int delete(int id) {
         return helper.delete(id);
     }
+
+    // ✅ NEW: Method for History functionality
+    public List<FoodLogItem> getItemsByFoodLogIdSync(int foodLogId) {
+        return helper.getItemsByFoodLogIdSync(foodLogId);
+    }
 }

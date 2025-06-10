@@ -222,6 +222,13 @@ public class FoodLogItemHelper {
         return items;
     }
 
+    // ✅ NEW: Sync method for History functionality
+    public List<FoodLogItem> getItemsByFoodLogIdSync(int foodLogId) {
+        // This method already exists as getFoodLogItemsByFoodLogId()
+        // Just create an alias for consistency with HistoryViewModel
+        return getFoodLogItemsByFoodLogId(foodLogId);
+    }
+
     // ✅ Helper method untuk timestamps
     private String getCurrentTimestamp() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());

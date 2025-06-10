@@ -631,6 +631,22 @@ public class AuthRepository {
         return profile;
     }
 
+    // ✅ NEW: Synchronous method for HistoryViewModel
+    public UserProfile getUserProfileSync(int userId) {
+        SQLiteDatabase db = null;
+        try {
+            db = dbHelper.getReadableDatabase();
+            return getUserProfile(userId, db);
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting user profile sync", e);
+            return null;
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
+        }
+    }
+
     private void updateUserLastLogin(int userId, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
         values.put(UserContract.UserEntry.COLUMN_UPDATED_AT, getCurrentTimestamp());

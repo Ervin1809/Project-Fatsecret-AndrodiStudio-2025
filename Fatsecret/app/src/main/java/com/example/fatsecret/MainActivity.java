@@ -85,6 +85,11 @@ public class MainActivity extends AppCompatActivity {
                         showBottomNavigation();
                     }
 
+                } else if (destination.getId() == R.id.historyFragment) {
+                    // ✅ ADD: History fragment handling
+                    toolbar.setTitle("📅 Food History");
+                    showBottomNavigation(); // Always show for history
+
                 } else if (destination.getId() == R.id.profileFragment) {
                     toolbar.setTitle("Profile");
                     showBottomNavigation(); // Always show for profile
