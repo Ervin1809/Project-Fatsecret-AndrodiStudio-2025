@@ -64,4 +64,6 @@ public class FoodLogItem {
         this.calculatedCarbs = ingredient.getCarbsPer100g() * ratio;
         this.calculatedFat = ingredient.getFatPer100g() * ratio;
     }
+
+
 }

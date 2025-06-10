@@ -14,181 +14,195 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Food Image -->
-        <ImageView
-            android:id="@+id/ivFoodImage"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/circle_background"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_food_placeholder"
-            android:contentDescription="Food Image" />
-
-        <!-- Food Details -->
+        <!-- ✅ Top Row: Food Info + Button -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:gravity="center">
 
-            <!-- Food Name -->
-            <TextView
-                android:id="@+id/tvFoodName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Food Name"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:maxLines="2"
-                android:ellipsize="end"
-                tools:text="Chicken Breast, Raw" />
+            <!-- Food Image -->
+            <ImageView
+                android:id="@+id/ivFoodImage"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/circle_background"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_food_placeholder"
+                android:contentDescription="Food Image" />
 
-            <!-- Food Category -->
-            <TextView
-                android:id="@+id/tvFoodCategory"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Category"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:maxLines="1"
-                android:ellipsize="end"
-                tools:text="Poultry Products" />
-
-            <!-- Nutrition Info -->
+            <!-- Food Details Container -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-                <!-- Calories -->
-                <LinearLayout
+                <!-- Food Name -->
+                <TextView
+                    android:id="@+id/tvFoodName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:layout_marginEnd="16dp">
+                    android:text="Food Name"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    tools:text="Chicken Breast, Raw" />
 
-                    <TextView
-                        android:id="@+id/tvCalories"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="165"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary"
-                        tools:text="165" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="kcal"
-                        android:textSize="10sp"
-                        android:textColor="@color/text_hint" />
-
-                </LinearLayout>
-
-                <!-- Protein -->
-                <LinearLayout
+                <!-- Food Category -->
+                <TextView
+                    android:id="@+id/tvFoodCategory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:layout_marginEnd="16dp">
+                    android:layout_marginTop="2dp"
+                    android:text="Category"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="Poultry Products" />
 
-                    <TextView
-                        android:id="@+id/tvProtein"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="31g"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/secondary"
-                        tools:text="31g" />
+            </LinearLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="protein"
-                        android:textSize="10sp"
-                        android:textColor="@color/text_hint" />
+            <!-- ✅ Action Button - Positioned at top right -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddFood"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Add"
+                android:textSize="12sp"
+                android:minWidth="64dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                app:cornerRadius="20dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
-                </LinearLayout>
+        </LinearLayout>
 
-                <!-- Carbs -->
-                <LinearLayout
+        <!-- ✅ Bottom Row: Nutrition Info - Full Width, No Overlap -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="76dp">
+
+            <!-- Calories -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvCalories"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:layout_marginEnd="16dp">
+                    android:text="165"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    tools:text="165" />
 
-                    <TextView
-                        android:id="@+id/tvCarbs"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0g"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/info"
-                        tools:text="0g" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="carbs"
-                        android:textSize="10sp"
-                        android:textColor="@color/text_hint" />
-
-                </LinearLayout>
-
-                <!-- Fat -->
-                <LinearLayout
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:text="kcal"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_hint" />
 
-                    <TextView
-                        android:id="@+id/tvFat"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="3.6g"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/warning"
-                        tools:text="3.6g" />
+            </LinearLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="fat"
-                        android:textSize="10sp"
-                        android:textColor="@color/text_hint" />
+            <!-- Protein -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
 
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvProtein"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="31g"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/secondary"
+                    tools:text="31g" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="protein"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_hint" />
+
+            </LinearLayout>
+
+            <!-- Carbs -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvCarbs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0g"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/info"
+                    tools:text="0g" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="carbs"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_hint" />
+
+            </LinearLayout>
+
+            <!-- Fat -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvFat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3.6g"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/warning"
+                    tools:text="3.6g" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="fat"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_hint" />
 
             </LinearLayout>
 
         </LinearLayout>
-
-        <!-- Action Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddFood"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Add"
-            android:textSize="12sp"
-            app:cornerRadius="20dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
     </LinearLayout>
 

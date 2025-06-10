@@ -4,17 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.example.fatsecret.data.viewmodel.AuthViewModel;
 import com.example.fatsecret.ui.LoginActivity;
-import com.example.fatsecret.ui.fragments.HomeFragment;
-import com.example.fatsecret.ui.fragments.ProfileFragment;
-import com.example.fatsecret.ui.fragments.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,10 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setupToolbar();
         setupBottomNavigation();
 
-        // Load default fragment
-        if (savedInstanceState == null) {
-            loadFragment(new HomeFragment());
-        }
+        // ✅ REMOVED: No need to load default fragment
+        // Navigation Component handles this automatically via app:startDestination
     }
 
     private void initViews() {
@@ -55,37 +53,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
-        bottomNavigation.setOnItemSelectedListener(item -> {
-            Fragment fragment = null;
+        // Get NavController
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
 
-            if (item.getItemId() == R.id.nav_home) {
-                fragment = new HomeFragment();
-                toolbar.setTitle("Home");
-            } else if (item.getItemId() == R.id.nav_search) {
-                fragment = new SearchFragment();
-                toolbar.setTitle("Search Food");
-            } else if (item.getItemId() == R.id.nav_profile) {
-                fragment = new ProfileFragment();
-                toolbar.setTitle("Profile");
-            }
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
 
-            if (fragment != null) {
-                return loadFragment(fragment);
-            }
-            return false;
-        });
-    }
+            // Setup BottomNavigation with NavController
+            NavigationUI.setupWithNavController(bottomNavigation, navController);
 
-    private boolean loadFragment(Fragment fragment) {
-        if (fragment != null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .commit();
-            return true;
+            // Update toolbar title and bottom nav visibility when destination changes
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+
+                // ✅ Check if we're in add food mode
+                boolean isAddFoodMode = arguments != null && arguments.getBoolean("is_adding_food", false);
+
+                if (destination.getId() == R.id.homeFragment) {
+                    toolbar.setTitle("Home");
+                    showBottomNavigation(); // Always show for home
+
+                } else if (destination.getId() == R.id.searchFragment) {
+                    if (isAddFoodMode) {
+                        // ✅ Add Food Mode - Hide bottom nav, custom title
+                        String mealType = arguments.getString("target_meal", "");
+                        toolbar.setTitle("Add Food to " + mealType.substring(0, 1).toUpperCase() + mealType.substring(1));
+                        hideBottomNavigation();
+                    } else {
+                        // ✅ Normal Search Mode - Show bottom nav
+                        toolbar.setTitle("Search Food");
+                        showBottomNavigation();
+                    }
+
+                } else if (destination.getId() == R.id.profileFragment) {
+                    toolbar.setTitle("Profile");
+                    showBottomNavigation(); // Always show for profile
+                }
+            });
         }
-        return false;
     }
+
+    // ✅ REMOVED: loadFragment method not needed with Navigation Component
+    // Navigation Component handles fragment transactions automatically
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -112,5 +121,33 @@ public class MainActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    // ✅ ADD: Methods to control bottom navigation visibility
+    public void hideBottomNavigation() {
+        if (bottomNavigation != null) {
+            bottomNavigation.setVisibility(View.GONE);
+        }
+    }
+
+    public void showBottomNavigation() {
+        if (bottomNavigation != null) {
+            bottomNavigation.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // ✅ ADD: Check if we're in add food mode
+    public boolean isInAddFoodMode() {
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            Bundle arguments = navController.getCurrentDestination() != null ?
+                    navController.getCurrentBackStackEntry().getArguments() : null;
+
+            return arguments != null && arguments.getBoolean("is_adding_food", false);
+        }
+        return false;
     }
 }

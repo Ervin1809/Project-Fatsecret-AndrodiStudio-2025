@@ -109,7 +109,12 @@ public class HomeViewModel extends AndroidViewModel {
         authRepository.getUserProfile(userId, new AuthRepository.ProfileCallback() {
             @Override
             public void onSuccess(UserProfile profile) {
+                Log.d(TAG, "✅ Profile loaded successfully");
                 userProfile.postValue(profile);
+
+                // ✅ ADD: Recalculate nutrition if food logs already loaded
+                recalculateNutritionWithProfile();
+
                 loadTodayFoodLogs(userId);
             }
 
@@ -209,12 +214,22 @@ public class HomeViewModel extends AndroidViewModel {
         summary.consumedCarbs = totalCarbs;
         summary.consumedFat = totalFat;
 
+        // ✅ FIXED: Try to get profile from LiveData, if null try to reload
         UserProfile profile = userProfile.getValue();
         if (profile != null) {
             summary.targetCalories = profile.getDailyCaloriesTarget();
             summary.targetProtein = profile.getDailyProteinTarget();
             summary.targetCarbs = profile.getDailyCarbsTarget();
             summary.targetFat = profile.getDailyFatTarget();
+
+            Log.d(TAG, "✅ Nutrition calculated with profile targets - Calories: " + summary.targetCalories);
+        } else {
+            // ✅ ADD: Set default values when profile not available yet
+            Log.d(TAG, "⚠️ Profile not available yet, using default targets");
+            summary.targetCalories = 2000; // Default fallback
+            summary.targetProtein = 150;
+            summary.targetCarbs = 250;
+            summary.targetFat = 65;
         }
 
         dailyNutrition.postValue(summary);
@@ -258,20 +273,56 @@ public class HomeViewModel extends AndroidViewModel {
     public void deleteFoodItem(FoodLogItemWithDetails itemWithDetails) {
         try {
             FoodLogItem item = itemWithDetails.getFoodLogItem();
+
+            Log.d(TAG, "🗑️ Starting delete for FoodLogItem ID: " + item.getId());
+            Log.d(TAG, "🗑️ Item belongs to FoodLog ID: " + item.getFoodLogId());
+
+            // ✅ STEP 1: Get FoodLog before deleting item
+            FoodLog foodLog = foodLogRepository.getById(item.getFoodLogId());
+            if (foodLog == null) {
+                Log.e(TAG, "❌ FoodLog not found for ID: " + item.getFoodLogId());
+                errorMessage.postValue("Food log not found");
+                return;
+            }
+
+            Log.d(TAG, "📋 Found FoodLog: " + foodLog.getMealTime() + " on " + foodLog.getDate());
+
+            // ✅ STEP 2: Delete the FoodLogItem
             int deletedRows = foodLogItemRepository.delete(item.getId());
 
             if (deletedRows > 0) {
-                FoodLog foodLog = foodLogRepository.getById(item.getFoodLogId());
-                if (foodLog != null) {
-                    updateFoodLogTotals(foodLog);
+                Log.d(TAG, "✅ Deleted FoodLogItem successfully");
+
+                // ✅ STEP 3: Check if FoodLog still has items
+                List<FoodLogItem> remainingItems = getFoodLogItemsByFoodLogId(foodLog.getId());
+                Log.d(TAG, "📊 Remaining items in FoodLog: " + remainingItems.size());
+
+                if (remainingItems.isEmpty()) {
+                    // ✅ STEP 4: If no items left, delete the FoodLog
+                    Log.d(TAG, "🗑️ No items left, deleting empty FoodLog");
+                    int deletedFoodLogs = foodLogRepository.delete(foodLog.getId());
+
+                    if (deletedFoodLogs > 0) {
+                        Log.d(TAG, "✅ Deleted empty FoodLog successfully");
+                    } else {
+                        Log.w(TAG, "⚠️ Failed to delete empty FoodLog");
+                    }
+                } else {
+                    // ✅ STEP 5: Update FoodLog totals with remaining items
+                    Log.d(TAG, "🔄 Updating FoodLog totals with remaining items");
+                    updateFoodLogTotalsFromItems(foodLog, remainingItems);
                 }
+
+                // ✅ STEP 6: Reload data
                 loadTodayData();
+
             } else {
+                Log.e(TAG, "❌ Failed to delete FoodLogItem");
                 errorMessage.postValue("Failed to delete food item");
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Error deleting food item: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Error deleting food item: " + e.getMessage(), e);
             errorMessage.postValue("Failed to delete food: " + e.getMessage());
         }
     }
@@ -372,5 +423,88 @@ public class HomeViewModel extends AndroidViewModel {
         public float getRemainingFat() {
             return Math.max(0, targetFat - consumedFat);
         }
+    }
+
+    // ✅ ADD: Method to recalculate nutrition when profile becomes available
+    private void recalculateNutritionWithProfile() {
+        List<FoodLog> currentLogs = todayFoodLogs.getValue();
+        if (currentLogs != null) {
+            Log.d(TAG, "🔄 Recalculating nutrition with profile data");
+            calculateDailyNutrition(currentLogs);
+        }
+    }
+
+    // ✅ NEW: Update FoodLog totals from provided items (safer)
+    // ✅ ENHANCED: Around line 440-470 in HomeViewModel.java
+    private void updateFoodLogTotalsFromItems(FoodLog foodLog, List<FoodLogItem> items) {
+        try {
+            // ✅ STEP 1: Validate FoodLog exists first
+            FoodLog existingLog = foodLogRepository.getById(foodLog.getId());
+            if (existingLog == null) {
+                Log.w(TAG, "⚠️ FoodLog no longer exists, skipping update: " + foodLog.getId());
+                return;
+            }
+
+            Log.d(TAG, "🔍 Updating FoodLog ID: " + foodLog.getId());
+            Log.d(TAG, "🔍 Current user_id: " + existingLog.getUserId());
+            Log.d(TAG, "🔍 Current user_profile_id: " + existingLog.getUserProfileId());
+
+            // ✅ STEP 2: Calculate new totals
+            float totalCalories = 0;
+            float totalProtein = 0;
+            float totalCarbs = 0;
+            float totalFat = 0;
+
+            for (FoodLogItem item : items) {
+                totalCalories += item.getCalculatedCalories();
+                totalProtein += item.getCalculatedProtein();
+                totalCarbs += item.getCalculatedCarbs();
+                totalFat += item.getCalculatedFat();
+            }
+
+            Log.d(TAG, "📊 Calculated totals - Calories: " + totalCalories +
+                    ", Protein: " + totalProtein + ", Carbs: " + totalCarbs + ", Fat: " + totalFat);
+
+            // ✅ STEP 3: Create new FoodLog object with SAFE values
+            FoodLog updatedLog = new FoodLog();
+            updatedLog.setId(existingLog.getId());
+            updatedLog.setUserId(existingLog.getUserId()); // ✅ Keep existing user_id
+            updatedLog.setUserProfileId(existingLog.getUserProfileId()); // ✅ Keep existing user_profile_id (might be null)
+            updatedLog.setDate(existingLog.getDate());
+            updatedLog.setMealTime(existingLog.getMealTime());
+            updatedLog.setNote(existingLog.getNote());
+
+            // ✅ STEP 4: Set new calculated totals
+            updatedLog.setTotalCalories(totalCalories);
+            updatedLog.setTotalProtein(totalProtein);
+            updatedLog.setTotalCarbs(totalCarbs);
+            updatedLog.setTotalFat(totalFat);
+
+            // ✅ STEP 5: Set timestamps
+            updatedLog.setCreatedAt(existingLog.getCreatedAt()); // Keep original
+            updatedLog.setUpdatedAt(getCurrentDateTime()); // Update timestamp
+
+            // ✅ STEP 6: Try to update
+            int updatedRows = foodLogRepository.update(updatedLog);
+
+            if (updatedRows > 0) {
+                Log.d(TAG, "✅ FoodLog totals updated successfully");
+            } else {
+                Log.w(TAG, "⚠️ No rows updated for FoodLog ID: " + foodLog.getId());
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error updating FoodLog totals: " + e.getMessage(), e);
+
+            // ✅ FALLBACK: Skip update and just log
+            Log.d(TAG, "⚠️ Skipping FoodLog update due to constraint issues");
+            // Data will be recalculated on next reload
+        }
+    }
+
+    // ✅ ADD this helper method at the end of HomeViewModel.java (around line 500+)
+    private String getCurrentDateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        return sdf.format(new Date());
     }
 }

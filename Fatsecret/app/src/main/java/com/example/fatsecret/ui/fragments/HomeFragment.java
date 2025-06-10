@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -165,15 +167,42 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        btnAddBreakfast.setOnClickListener(v -> showAddFoodDialog(MealTime.BREAKFAST));
-        btnAddLunch.setOnClickListener(v -> showAddFoodDialog(MealTime.LUNCH));
-        btnAddDinner.setOnClickListener(v -> showAddFoodDialog(MealTime.DINNER));
-        btnAddSnack.setOnClickListener(v -> showAddFoodDialog(MealTime.SNACK));
+        btnAddBreakfast.setOnClickListener(v -> navigateToSearchFragment(MealTime.BREAKFAST));
+        btnAddLunch.setOnClickListener(v -> navigateToSearchFragment(MealTime.LUNCH));
+        btnAddDinner.setOnClickListener(v -> navigateToSearchFragment(MealTime.DINNER));
+        btnAddSnack.setOnClickListener(v -> navigateToSearchFragment(MealTime.SNACK));
+    }
+
+    private void navigateToSearchFragment(MealTime mealTime) {
+        try {
+            Log.d(TAG, "🍽️ Navigating to search for meal: " + mealTime.getDisplayName());
+
+            // Create bundle with meal information
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("is_adding_food", true);
+            bundle.putString("target_meal", mealTime.getValue());
+
+            // Navigate using Navigation Controller
+            NavController navController = Navigation.findNavController(requireView());
+            navController.navigate(R.id.action_home_to_search, bundle);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Navigation error: " + e.getMessage());
+            Toast.makeText(getContext(), "Failed to open search", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void observeViewModel() {
         // Observe user profile
-        viewModel.getUserProfile().observe(getViewLifecycleOwner(), this::updateUserInfo);
+        viewModel.getUserProfile().observe(getViewLifecycleOwner(), userProfile -> {
+            updateUserInfo(userProfile);
+
+            // ✅ ADD: Reload data when profile becomes available for first time
+            if (userProfile != null && viewModel.getDailyNutrition().getValue() == null) {
+                Log.d(TAG, "Profile available, reloading nutrition data...");
+                viewModel.loadTodayData();
+            }
+        });
 
         // Observe daily nutrition
         viewModel.getDailyNutrition().observe(getViewLifecycleOwner(), this::updateNutritionProgress);
@@ -203,8 +232,11 @@ public class HomeFragment extends Fragment {
 
     private void updateUserInfo(UserProfile userProfile) {
         if (userProfile != null) {
-            // User greeting sudah di-set di initializeViews()
-            Log.d(TAG, "User profile loaded successfully");
+            // ✅ ADD: Update greeting with user info if available from profile
+            if (tvUserGreeting != null) {
+                tvUserGreeting.setText("Hi there! 👋");
+            }
+            Log.d(TAG, "User profile loaded successfully - Calories target: " + userProfile.getDailyCaloriesTarget());
         }
     }
 

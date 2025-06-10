@@ -13,19 +13,27 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fatsecret.R;
+import com.example.fatsecret.data.managers.FoodLogManager;
+import com.example.fatsecret.data.model.Ingredient;
+import com.example.fatsecret.data.model.User;
+import com.example.fatsecret.data.viewmodel.AuthViewModel;
 import com.example.fatsecret.data.viewmodel.IngredientViewModel;
 import com.example.fatsecret.ui.adapters.IngredientAdapter;
+import com.example.fatsecret.ui.dialogs.WeightInputDialog;
+import com.example.fatsecret.utils.MealTime;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.ArrayList;
+public class SearchFragment extends Fragment implements WeightInputDialog.OnWeightConfirmedListener{
+    private static final String TAG = "SearchFragment";
 
-public class SearchFragment extends Fragment {
     private EditText etSearch;
     private MaterialButton btnSearch, btnRetry;
     private ProgressBar progressBar;
@@ -36,6 +44,30 @@ public class SearchFragment extends Fragment {
     private IngredientViewModel ingredientViewModel;
     private IngredientAdapter searchAdapter;
 
+    // ✅ Simple mode detection
+    private boolean isAddingFoodMode = false;
+    private String targetMealType = null;
+
+    private AuthViewModel authViewModel;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
+
+        // ✅ Check if we're in "adding food" mode
+        if (getArguments() != null) {
+            isAddingFoodMode = getArguments().getBoolean("is_adding_food", false);
+            targetMealType = getArguments().getString("target_meal");
+
+            if (isAddingFoodMode && targetMealType != null) {
+                Log.d(TAG, "🍽️ Add Food Mode: " + targetMealType);
+            } else {
+                Log.d(TAG, "🔍 Browse Mode: Just searching ingredients");
+            }
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
@@ -44,7 +76,6 @@ public class SearchFragment extends Fragment {
         setupViewModel();
         setupClickListeners();
         setupRecyclerView();
-//        testClearDatabase(); // aktifkan jika ingin menguji pembersihan database
 
         return view;
     }
@@ -67,7 +98,6 @@ public class SearchFragment extends Fragment {
         ingredientViewModel.getSearchResults().observe(getViewLifecycleOwner(), ingredients -> {
             if (ingredients != null && !ingredients.isEmpty()) {
                 showSearchResults();
-                // Update RecyclerView adapter with results
                 searchAdapter.setIngredients(ingredients);
             } else {
                 showEmptyState();
@@ -92,13 +122,9 @@ public class SearchFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        // Search button
         btnSearch.setOnClickListener(v -> performSearch());
-
-        // Retry button
         btnRetry.setOnClickListener(v -> performSearch());
 
-        // Search on Enter key
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 performSearch();
@@ -111,7 +137,51 @@ public class SearchFragment extends Fragment {
     private void setupRecyclerView() {
         rvSearchResults.setLayoutManager(new LinearLayoutManager(getContext()));
         searchAdapter = new IngredientAdapter();
+
+        // ✅ Set mode ke adapter
+        searchAdapter.setMode(isAddingFoodMode, targetMealType);
+
+        // ✅ Set click listener
+        searchAdapter.setOnIngredientClickListener(new IngredientAdapter.OnIngredientClickListener() {
+            @Override
+            public void onIngredientClick(Ingredient ingredient) {
+                // Handle item click (show details)
+                Log.d(TAG, "🔍 Ingredient clicked: " + ingredient.getName());
+                Toast.makeText(getContext(),
+                        "Details: " + ingredient.getName() + " - " + ingredient.getCaloriesPer100g() + " kcal",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAddFoodClick(Ingredient ingredient) {
+                // ✅ Call method yang ada di SearchFragment
+                onAddFoodClicked(ingredient);
+            }
+        });
+
         rvSearchResults.setAdapter(searchAdapter);
+    }
+
+    // ✅ Method ini di level SearchFragment, bukan di dalam anonymous class
+    private void onAddFoodClicked(Ingredient ingredient) {
+        Log.d(TAG, "🍽️ Add food clicked: " + ingredient.getName() + " to " + targetMealType);
+
+        // Show weight input dialog
+        showWeightInputDialog(ingredient);
+    }
+
+    // ✅ Method ini juga di level SearchFragment
+    private void showWeightInputDialog(Ingredient ingredient) {
+        try {
+            MealTime mealTime = MealTime.fromValue(targetMealType);
+            WeightInputDialog dialog = WeightInputDialog.newInstance(ingredient, mealTime);
+            dialog.show(getChildFragmentManager(), "WeightInputDialog");
+
+            Log.d(TAG, "✅ Weight dialog shown for: " + ingredient.getName());
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error showing weight dialog: " + e.getMessage());
+            Toast.makeText(getContext(), "Error showing dialog", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void performSearch() {
@@ -129,16 +199,16 @@ public class SearchFragment extends Fragment {
             return;
         }
 
-        // Clear error
         etSearch.setError(null);
-
-        // Hide keyboard
         hideKeyboard();
 
-        // Perform search
+        // ✅ Log mode info
+        Log.d(TAG, "🔍 Searching: " + query + (isAddingFoodMode ? " (Add Food Mode for " + targetMealType + ")" : " (Browse Mode)"));
+
         ingredientViewModel.searchIngredients(query);
     }
 
+    // Rest of your existing methods (unchanged)
     private void showLoading() {
         progressBar.setVisibility(View.VISIBLE);
         rvSearchResults.setVisibility(View.GONE);
@@ -182,16 +252,61 @@ public class SearchFragment extends Fragment {
             }
         }
     }
-    private void testClearDatabase() {
-//        IngredientViewModel viewModel = new ViewModelProvider(this).get(IngredientViewModel.class);
-        Log.d("SearchFragment", "🧪 Testing database clear...");
 
-        // Option 1: Clear all
-        ingredientViewModel.clearDatabase();
+    @Override
+    public void onWeightConfirmed(Ingredient ingredient, MealTime mealType, double weightInGrams) {
+        Log.d(TAG, "✅ Weight confirmed: " + ingredient.getName() +
+                " (" + weightInGrams + "g) to " + mealType.getDisplayName());
 
-        // Option 2: Clear only zero protein data
-        // viewModel.clearCorruptData();
+        // TODO: Save to database (next step)
+        saveFoodToMeal(ingredient, mealType, weightInGrams);
+    }
 
-        Toast.makeText(getContext(), "Database clearing... check logcat", Toast.LENGTH_SHORT).show();
+    private void saveFoodToMeal(Ingredient ingredient, MealTime mealType, double weightInGrams) {
+        Log.d(TAG, "💾 Saving food to meal: " + ingredient.getName() +
+                " (" + weightInGrams + "g) to " + mealType.getDisplayName());
+
+        // Get current user ID from AuthViewModel
+        User currentUser = authViewModel.getCurrentUser().getValue();
+
+        if (currentUser == null) {
+            Toast.makeText(getContext(),
+                    "❌ Error: User not logged in",
+                    Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "❌ No current user found");
+            return;
+        }
+
+        int currentUserId = currentUser.getId();
+        String username = currentUser.getEmail();
+
+        Log.d(TAG, "👤 Current user: " + username + " (ID: " + currentUserId + ")");
+
+        // Use FoodLogManager to save
+        FoodLogManager foodLogManager = new FoodLogManager(getContext());
+
+        // Run in background thread
+        new Thread(() -> {
+            boolean success = foodLogManager.addFoodToMeal(ingredient, mealType, weightInGrams, currentUserId);
+
+            // Update UI on main thread
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (success) {
+                        // ✅ Enhanced success message
+                        Toast.makeText(getContext(),
+                                "✅ " + ingredient.getName() + " (" + weightInGrams + "g) added to " + mealType.getDisplayName(),
+                                Toast.LENGTH_SHORT).show();
+
+                        // Navigate back to home
+                        getActivity().onBackPressed();
+                    } else {
+                        Toast.makeText(getContext(),
+                                "❌ Failed to add food. Please try again.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).start();
     }
 }
