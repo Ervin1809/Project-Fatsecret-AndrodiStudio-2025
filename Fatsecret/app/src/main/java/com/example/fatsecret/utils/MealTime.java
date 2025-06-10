@@ -1,10 +1,10 @@
 package com.example.fatsecret.utils;
 
 public enum MealTime {
-    BREAKFAST("breakfast", "🌅 Breakfast"),
-    LUNCH("lunch", "☀️ Lunch"),
-    DINNER("dinner", "🌆 Dinner"),
-    SNACK("snack", "🍿 Snack");
+    BREAKFAST("breakfast", "Breakfast"),
+    LUNCH("lunch", "Lunch"),
+    DINNER("dinner", "Dinner"),
+    SNACK("snack", "Snack");
 
     private final String value;
     private final String displayName;

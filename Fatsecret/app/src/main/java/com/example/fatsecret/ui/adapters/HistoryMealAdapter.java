@@ -42,7 +42,7 @@ public class HistoryMealAdapter extends RecyclerView.Adapter<HistoryMealAdapter.
         String mealEmoji = getMealEmoji(mealTime);
 
         // Set meal info
-        holder.mealNameText.setText(mealEmoji + " " + mealTime.getDisplayName());
+        holder.mealNameText.setText(mealTime.getDisplayName());
 
         // Set calories
         String caloriesText = String.format(Locale.getDefault(), "%.0f cal", foodLog.getTotalCalories());

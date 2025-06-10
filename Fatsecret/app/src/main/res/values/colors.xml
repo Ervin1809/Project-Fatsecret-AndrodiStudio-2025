@@ -1,49 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors -->
-    <color name="primary">#4CAF50</color>
-    <color name="primary_dark">#388E3C</color>
-    <color name="primary_light">#C8E6C9</color>
+    <!-- ✅ Enhanced Brand Colors (More Vibrant) -->
+    <color name="brand_emerald_green">#10B981</color>
+    <color name="brand_lime_green">#84CC16</color>
+    <color name="brand_amber_orange">#F59E0B</color>
+    <color name="brand_deep_teal">#0D9488</color>
+    <color name="brand_dark_slate">#334155</color>
 
-    <!-- Secondary Colors -->
-    <color name="secondary">#FF9800</color>
-    <color name="secondary_dark">#F57C00</color>
-    <color name="secondary_light">#FFE0B2</color>
+    <!-- ✅ Light Theme Colors (Enhanced) -->
+    <color name="primary">#10B981</color>                  <!-- Emerald Green -->
+    <color name="primary_dark">#059669</color>
+    <color name="primary_light">#6EE7B7</color>
+    <color name="secondary">#F59E0B</color>                <!-- Amber Orange -->
+    <color name="secondary_dark">#D97706</color>
 
-    <!-- Background Colors -->
-    <color name="background_light">#FAFAFA</color>
-    <color name="background_dark">#121212</color>
+    <!-- Light theme backgrounds -->
+    <color name="background_light">#FFFFFF</color>
     <color name="surface">#FFFFFF</color>
-    <color name="surface_dark">#1E1E1E</color>
+    <color name="surface_variant">#F8FAFC</color>
 
-    <!-- Text Colors -->
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="text_hint">#BDBDBD</color>
-    <color name="text_disabled">#E0E0E0</color>
+    <!-- Light theme text -->
+    <color name="text_primary">#334155</color>             <!-- Dark Slate -->
+    <color name="text_secondary">#64748B</color>
+    <color name="text_hint">#94A3B8</color>
 
-    <!-- Common Colors -->
+    <!-- ✅ Dark Theme Colors -->
+    <color name="primary_dark_theme">#34D399</color>       <!-- Lighter for dark mode -->
+    <color name="primary_dark_theme_variant">#10B981</color>
+    <color name="secondary_dark_theme">#FBBF24</color>
+    <color name="secondary_dark_theme_variant">#F59E0B</color>
+
+    <!-- Dark theme backgrounds -->
+    <color name="background_dark">#0F172A</color>
+    <color name="surface_dark">#1E293B</color>
+    <color name="surface_variant_dark">#334155</color>
+
+    <!-- Dark theme text -->
+    <color name="text_primary_dark">#F1F5F9</color>
+    <color name="text_secondary_dark">#CBD5E1</color>
+    <color name="text_hint_dark">#94A3B8</color>
+
+    <!-- ✅ Common Colors -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="transparent">#00000000</color>
+    <color name="error">#DC2626</color>
+    <color name="success">#059669</color>
+    <color name="warning">#F59E0B</color>
+    <color name="info">#0284C7</color>
+    <color name="divider">#E2E8F0</color>
 
-    <!-- Status Colors -->
-    <color name="success">#4CAF50</color>
-    <color name="error">#F44336</color>
-    <color name="warning">#FF9800</color>
-    <color name="info">#2196F3</color>
-
-    <!-- Divider & Border -->
-    <color name="divider">#E0E0E0</color>
-    <color name="border">#BDBDBD</color>
-
-    <!-- Bottom Navigation Colors -->
-    <color name="bottom_nav_selected">#4CAF50</color>
-    <color name="bottom_nav_unselected">#757575</color>
-
-    <!-- Add these colors to your colors.xml -->
-    <color name="colorCalories">#FF6B35</color>
-    <color name="colorProtein">#4ECDC4</color>
-    <color name="colorCarbs">#45B7D1</color>
-    <color name="colorFat">#96CEB4</color>
+    <!-- ✅ Enhanced Nutrition Colors -->
+    <color name="colorCalories">#EF4444</color>            <!-- Red - Energy -->
+    <color name="colorProtein">#7C3AED</color>             <!-- Purple - Strength -->
+    <color name="colorCarbs">#F59E0B</color>               <!-- Orange - Energy -->
+    <color name="colorFat">#10B981</color>                 <!-- Green - Healthy -->
 </resources>

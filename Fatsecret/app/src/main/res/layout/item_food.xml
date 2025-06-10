@@ -5,11 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="16dp"
     app:cardElevation="4dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardBackgroundColor="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,32 +18,32 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- ✅ Top Row: Food Info + Button -->
+        <!-- Top Row: Food Info + Button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center_vertical">
 
             <!-- Food Image -->
-            <ImageView
+            <TextView
                 android:id="@+id/ivFoodImage"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/circle_background"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_food_placeholder"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/food_image_bg"
+                android:text="🍎"
+                android:textSize="28sp"
+                android:gravity="center"
                 android:contentDescription="Food Image" />
 
-            <!-- Food Details Container -->
+            <!-- Food Details -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <!-- Food Name -->
                 <TextView
                     android:id="@+id/tvFoodName"
                     android:layout_width="wrap_content"
@@ -50,49 +51,46 @@
                     android:text="Food Name"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="?attr/colorOnSurface"
                     android:maxLines="2"
                     android:ellipsize="end"
                     tools:text="Chicken Breast, Raw" />
 
-                <!-- Food Category -->
                 <TextView
                     android:id="@+id/tvFoodCategory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Category"
+                    android:layout_marginTop="4dp"
+                    android:text="🏷️ Category"
                     android:textSize="12sp"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    tools:text="Poultry Products" />
+                    tools:text="🏷️ Poultry Products" />
 
             </LinearLayout>
 
-            <!-- ✅ Action Button - Positioned at top right -->
+            <!-- Action Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddFood"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="Add"
+                android:layout_height="40dp"
+                android:text="+ Add"
                 android:textSize="12sp"
-                android:minWidth="64dp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
+                android:minWidth="70dp"
                 app:cornerRadius="20dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                style="@style/Widget.FatSecret.Button" />
 
         </LinearLayout>
 
-        <!-- ✅ Bottom Row: Nutrition Info - Full Width, No Overlap -->
+        <!-- Nutrition Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="12dp"
-            android:layout_marginStart="76dp">
+            android:padding="12dp"
+            android:layout_marginStart="68dp">
 
             <!-- Calories -->
             <LinearLayout
@@ -109,15 +107,15 @@
                     android:text="165"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="@color/primary"
+                    android:textColor="@color/colorCalories"
                     tools:text="165" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="kcal"
+                    android:text="🔥 kcal"
                     android:textSize="10sp"
-                    android:textColor="@color/text_hint" />
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
 
@@ -136,15 +134,15 @@
                     android:text="31g"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="@color/secondary"
+                    android:textColor="@color/colorProtein"
                     tools:text="31g" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="protein"
+                    android:text="🥩 protein"
                     android:textSize="10sp"
-                    android:textColor="@color/text_hint" />
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
 
@@ -163,15 +161,15 @@
                     android:text="0g"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="@color/info"
+                    android:textColor="@color/colorCarbs"
                     tools:text="0g" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="carbs"
+                    android:text="🍞 carbs"
                     android:textSize="10sp"
-                    android:textColor="@color/text_hint" />
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
 
@@ -190,15 +188,15 @@
                     android:text="3.6g"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="@color/warning"
+                    android:textColor="@color/colorFat"
                     tools:text="3.6g" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="fat"
+                    android:text="🥑 fat"
                     android:textSize="10sp"
-                    android:textColor="@color/text_hint" />
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
 

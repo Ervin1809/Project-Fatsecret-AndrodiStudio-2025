@@ -39,7 +39,7 @@ public class HistoryFragment extends Fragment {
     private ProgressBar dailyProgressBar;
     private RecyclerView mealsRecyclerView;
     private ProgressBar loadingProgress;
-    private TextView noMealsText;
+    private LinearLayout noMealsText;
 
     // Repositories (Direct database access)
     private FoodLogRepository foodLogRepository;

@@ -1,79 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp"
+    android:padding="16dp"
+    android:layout_marginBottom="6dp"
     android:gravity="center_vertical"
-    android:background="?android:attr/selectableItemBackground">
+    android:background="@drawable/nutrition_item_background"
+    android:minHeight="64dp">
 
+    <!-- Main Content -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical">
 
+        <!-- Food Name Row -->
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="@drawable/bmi_background">
+
+                <TextView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:text="🍚"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:background="@drawable/meal_icon_bg"
+                    android:layout_marginEnd="12dp" />
+
+                <TextView
+                    android:id="@+id/tvFoodName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nasi Putih"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <!-- Weight Badge -->
+                <TextView
+                    android:id="@+id/tvWeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="📏 200g"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="12sp" />
+
+                <!-- Calories Badge -->
+                <TextView
+                    android:id="@+id/tvCalories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="🔥 260 kcal"
+                    android:textColor="@color/colorCalories"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Enhanced Nutrition Info -->
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/tvFoodName"
+                android:id="@+id/tvNutrition"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Nasi Putih"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvWeight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="200g"
+                android:text="🥩 P: 5.4g • 🍞 C: 58.0g • 🥑 F: 0.6g"
                 android:textSize="12sp"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginStart="8dp" />
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp" />
 
-            <TextView
-                android:id="@+id/tvCalories"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="260 kcal"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@color/colorCalories"
-                android:layout_marginStart="8dp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvNutrition"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="P: 5.4g • C: 58.0g • F: 0.6g"
-            android:textSize="11sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="2dp" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/btnEdit"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/ic_edit"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:layout_marginStart="8dp"
-        android:contentDescription="Edit" />
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="8dp">
 
-    <ImageButton
-        android:id="@+id/btnDelete"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/ic_delete"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:layout_marginStart="4dp"
-        android:contentDescription="Delete" />
+        <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_edit"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="8dp"
+            android:scaleType="centerInside"
+            android:visibility="gone"
+            android:contentDescription="Edit" />
+
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_delete"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="4dp"
+            android:scaleType="centerInside"
+            android:contentDescription="Delete" />
+
+    </LinearLayout>
 
 </LinearLayout>
